@@ -1,13 +1,36 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
-import BottomNav from '@/components/layout/BottomNav'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Vinger - Audio Social Network',
-  description: 'Share your voice with the world',
+  metadataBase: new URL('https://vinger-real.vercel.app'),
+  title: 'Vinger - Media Sosial Berbasis Suara',
+  description: 'Bagi momen dan berinteraksi secara autentik lewat rekaman suara tanpa ketikan.',
+  openGraph: {
+    title: 'Vinger - Media Sosial Berbasis Suara',
+    description: 'Dengarkan postingan dan balas komentar menggunakan suara kamu!',
+    url: '/',
+    siteName: 'Vinger',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Vinger Audio Social Media',
+      },
+    ],
+    locale: 'id_ID',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Vinger - Media Sosial Berbasis Suara',
+    description: 'Dengarkan postingan dan balas komentar menggunakan suara kamu!',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 }
 
 export default function RootLayout({
@@ -17,10 +40,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={`${inter.className} bg-black text-white antialiased`}>
-        {children}
-        <BottomNav />
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
