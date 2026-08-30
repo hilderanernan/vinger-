@@ -35,10 +35,10 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 pb-24 bg-black text-white">
-      <header className="w-full max-w-md py-4 mb-4 border-b border-neutral-800 flex justify-between items-center">
-        <h1 className="text-xl font-bold tracking-tight">Vinger</h1>
-        <span className="text-xs text-neutral-400">Voice Feed</span>
+    <main className="flex min-h-screen flex-col items-center p-4 pb-36 bg-black text-white">
+      <header className="w-full max-w-md py-4 mb-4 border-b border-neutral-800 flex justify-between items-center sticky top-0 bg-black/90 backdrop-blur-md z-40">
+        <h1 className="text-xl font-bold tracking-tight text-white">Vinger</h1>
+        <span className="text-xs font-mono text-neutral-400">Audio Feed</span>
       </header>
 
       <div className="w-full max-w-md space-y-4">
