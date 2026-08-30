@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://vinger-real.vercel.app'),
   title: 'Vinger - Media Sosial Berbasis Suara',
   description: 'Bagi momen dan berinteraksi secara autentik lewat rekaman suara tanpa ketikan.',
+  verification: {
+    google: '7cNfhcHba76LCfxdyALtalbtQWi8Zjaitv67B4hrnYg',
+  },
   openGraph: {
     title: 'Vinger - Media Sosial Berbasis Suara',
     description: 'Dengarkan postingan dan balas komentar menggunakan suara kamu!',
