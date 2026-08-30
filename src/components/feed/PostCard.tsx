@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Play, Pause, Heart, MessageSquare } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 interface PostProps {
   post: {
@@ -10,17 +11,42 @@ interface PostProps {
     duration: number
     caption: string | null
     created_at: string
+    likes_count: number
+    comments_count: number
     profiles: {
       username: string
       display_name: string
       avatar_url: string | null
     }
   }
+  currentUserId?: string
 }
 
-export default function PostCard({ post }: PostProps) {
+export default function PostCard({ post, currentUserId }: PostProps) {
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isLiked, setIsLiked] = useState(false)
+  const [likesCount, setLikesCount] = useState(post.likes_count || 0)
+  const [likeLoading, setLikeLoading] = useState(false)
+
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const supabase = createClient()
+
+  useEffect(() => {
+    if (currentUserId) {
+      checkUserLike()
+    }
+  }, [currentUserId])
+
+  const checkUserLike = async () => {
+    const { data } = await supabase
+      .from('likes')
+      .select('id')
+      .eq('post_id', post.id)
+      .eq('user_id', currentUserId)
+      .single()
+
+    if (data) setIsLiked(true)
+  }
 
   const togglePlay = () => {
     if (!audioRef.current) return
@@ -29,13 +55,34 @@ export default function PostCard({ post }: PostProps) {
       audioRef.current.pause()
       setIsPlaying(false)
     } else {
-      // Stop all other audio players on page if any
       document.querySelectorAll('audio').forEach((el) => {
         if (el !== audioRef.current) el.pause()
       })
       audioRef.current.play()
       setIsPlaying(true)
     }
+  }
+
+  const handleLikeToggle = async () => {
+    if (!currentUserId || likeLoading) return
+    setLikeLoading(true)
+
+    if (isLiked) {
+      setIsLiked(false)
+      setLikesCount((prev) => Math.max(0, prev - 1))
+      await supabase
+        .from('likes')
+        .delete()
+        .eq('post_id', post.id)
+        .eq('user_id', currentUserId)
+    } else {
+      setIsLiked(true)
+      setLikesCount((prev) => prev + 1)
+      await supabase
+        .from('likes')
+        .insert({ post_id: post.id, user_id: currentUserId })
+    }
+    setLikeLoading(false)
   }
 
   return (
@@ -58,7 +105,7 @@ export default function PostCard({ post }: PostProps) {
         </div>
       </div>
 
-      {/* Audio Waveform / Player Trigger */}
+      {/* Audio Player Trigger */}
       <div className="flex items-center space-x-4 bg-neutral-950 p-3 rounded-lg border border-neutral-800/50">
         <button
           onClick={togglePlay}
@@ -81,14 +128,20 @@ export default function PostCard({ post }: PostProps) {
 
       {/* Actions */}
       <div className="flex items-center space-x-6 text-neutral-400 text-xs pt-1">
-        <button className="flex items-center space-x-1 hover:text-white">
-          <Heart className="w-4 h-4" />
-          <span>Like</span>
+        <button
+          onClick={handleLikeToggle}
+          disabled={likeLoading}
+          className={`flex items-center space-x-1 transition ${
+            isLiked ? 'text-red-500' : 'hover:text-white'
+          }`}
+        >
+          <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+          <span>{likesCount}</span>
         </button>
-        <button className="flex items-center space-x-1 hover:text-white">
+        <div className="flex items-center space-x-1 text-neutral-400">
           <MessageSquare className="w-4 h-4" />
-          <span>Comment</span>
-        </button>
+          <span>{post.comments_count || 0}</span>
+        </div>
       </div>
     </div>
   )

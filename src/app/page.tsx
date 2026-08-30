@@ -20,6 +20,8 @@ export default async function HomePage() {
       duration,
       caption,
       created_at,
+      likes_count,
+      comments_count,
       profiles (
         username,
         display_name,
@@ -42,7 +44,7 @@ export default async function HomePage() {
       <div className="w-full max-w-md space-y-4">
         {posts && posts.length > 0 ? (
           posts.map((post: any) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} currentUserId={user.id} />
           ))
         ) : (
           <div className="text-center py-12 space-y-2">
