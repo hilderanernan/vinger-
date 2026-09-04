@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import BottomNav from '@/components/layout/BottomNav'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vinger-real.vercel.app'),
@@ -43,7 +44,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body>{children}</body>
+      <body className="bg-black text-white antialiased">
+        {children}
+        <BottomNav />
+      </body>
     </html>
   )
 }
