@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Play, Pause, Heart, MessageSquare, Volume2 } from 'lucide-react'
+import { Play, Pause, Heart, MessageSquare, Volume2, CornerDownRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import AudioCommentModal from '../comments/AudioCommentModal'
 
@@ -33,6 +33,7 @@ export default function PostCard({ post, currentUserId }: PostProps) {
   const [showCommentModal, setShowCommentModal] = useState(false)
   const [showCommentsList, setShowCommentsList] = useState(false)
   const [comments, setComments] = useState<any[]>([])
+  const [replyTarget, setReplyTarget] = useState<{ id: string; username: string } | null>(null)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const supabase = createClient()
@@ -59,7 +60,6 @@ export default function PostCard({ post, currentUserId }: PostProps) {
       audioRef.current.pause()
       setIsPlaying(false)
     } else {
-      // Hentikan semua audio lain yang sedang berputar di halaman
       document.querySelectorAll('audio').forEach((el) => {
         if (el !== audioRef.current) {
           el.pause()
@@ -93,6 +93,7 @@ export default function PostCard({ post, currentUserId }: PostProps) {
         audio_url,
         duration,
         created_at,
+        parent_comment_id,
         profiles (username, display_name)
       `)
       .eq('post_id', post.id)
@@ -124,6 +125,31 @@ export default function PostCard({ post, currentUserId }: PostProps) {
     const s = Math.floor(secs)
     return `00:${s < 10 ? '0' : ''}${s}`
   }
+
+  // Pisahin komentar induk (top-level) dan balasan (reply)
+  const topLevelComments = comments.filter((c) => !c.parent_comment_id)
+  const repliesOf = (parentId: string) => comments.filter((c) => c.parent_comment_id === parentId)
+
+  const renderComment = (comment: any, isReply: boolean = false) => (
+    <div key={comment.id} className={isReply ? 'ml-6 mt-2' : ''}>
+      <div className="flex items-center space-x-2 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800 text-xs">
+        {isReply && <CornerDownRight className="w-3.5 h-3.5 text-neutral-600 shrink-0" />}
+        <span className="font-semibold text-neutral-300 shrink-0">@{comment.profiles?.username}:</span>
+        <audio controls src={comment.audio_url} className="h-7 w-full max-w-[140px]" />
+        <span className="font-mono text-[10px] text-neutral-500 shrink-0">{comment.duration}s</span>
+        <button
+          onClick={() => {
+            setReplyTarget({ id: comment.id, username: comment.profiles?.username })
+            setShowCommentModal(true)
+          }}
+          className="text-[10px] text-neutral-500 hover:text-white transition shrink-0 underline"
+        >
+          Balas
+        </button>
+      </div>
+      {repliesOf(comment.id).map((reply) => renderComment(reply, true))}
+    </div>
+  )
 
   return (
     <div className="w-full bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-4 shadow-md">
@@ -165,7 +191,6 @@ export default function PostCard({ post, currentUserId }: PostProps) {
         </button>
 
         <div className="flex-1 space-y-1.5">
-          {/* Progress Bar Visualizer */}
           <div className="h-2 bg-neutral-800 rounded-full overflow-hidden relative">
             <div
               className="h-full bg-emerald-400 transition-all duration-150 rounded-full"
@@ -204,22 +229,19 @@ export default function PostCard({ post, currentUserId }: PostProps) {
           <div className="flex justify-between items-center">
             <h4 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider">Komentar Suara</h4>
             <button
-              onClick={() => setShowCommentModal(true)}
+              onClick={() => {
+                setReplyTarget(null)
+                setShowCommentModal(true)
+              }}
               className="text-xs px-3 py-1 bg-white text-black font-semibold rounded-full hover:bg-neutral-200 transition"
             >
               + Reply Voice
             </button>
           </div>
 
-          <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-            {comments.length > 0 ? (
-              comments.map((comment) => (
-                <div key={comment.id} className="flex items-center space-x-3 bg-neutral-950 p-2.5 rounded-lg border border-neutral-800 text-xs">
-                  <span className="font-semibold text-neutral-300">@{comment.profiles?.username}:</span>
-                  <audio controls src={comment.audio_url} className="h-7 w-full max-w-[180px]" />
-                  <span className="font-mono text-[10px] text-neutral-500">{comment.duration}s</span>
-                </div>
-              ))
+          <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+            {topLevelComments.length > 0 ? (
+              topLevelComments.map((comment) => renderComment(comment))
             ) : (
               <p className="text-[11px] text-neutral-500 text-center py-2">Belum ada balasan suara.</p>
             )}
@@ -231,7 +253,12 @@ export default function PostCard({ post, currentUserId }: PostProps) {
         <AudioCommentModal
           postId={post.id}
           currentUserId={currentUserId}
-          onClose={() => setShowCommentModal(false)}
+          parentCommentId={replyTarget?.id || null}
+          replyingToUsername={replyTarget?.username || null}
+          onClose={() => {
+            setShowCommentModal(false)
+            setReplyTarget(null)
+          }}
           onCommentAdded={() => {
             setCommentsCount((prev) => prev + 1)
             loadComments()

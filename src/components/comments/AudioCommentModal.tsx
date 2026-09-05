@@ -9,9 +9,18 @@ interface CommentModalProps {
   currentUserId: string
   onClose: () => void
   onCommentAdded: () => void
+  parentCommentId?: string | null
+  replyingToUsername?: string | null
 }
 
-export default function AudioCommentModal({ postId, currentUserId, onClose, onCommentAdded }: CommentModalProps) {
+export default function AudioCommentModal({
+  postId,
+  currentUserId,
+  onClose,
+  onCommentAdded,
+  parentCommentId = null,
+  replyingToUsername = null,
+}: CommentModalProps) {
   const [recording, setRecording] = useState(false)
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null)
   const [audioUrl, setAudioUrl] = useState<string | null>(null)
@@ -97,6 +106,7 @@ export default function AudioCommentModal({ postId, currentUserId, onClose, onCo
           user_id: currentUserId,
           audio_url: publicUrl,
           duration,
+          parent_comment_id: parentCommentId,
         })
 
       if (dbError) throw dbError
@@ -117,7 +127,9 @@ export default function AudioCommentModal({ postId, currentUserId, onClose, onCo
           <X className="w-5 h-5" />
         </button>
 
-        <h3 className="text-lg font-bold text-center">Balas dengan Suara</h3>
+        <h3 className="text-lg font-bold text-center">
+          {replyingToUsername ? `Balas @${replyingToUsername}` : 'Balas dengan Suara'}
+        </h3>
         <p className="text-xs text-neutral-400 text-center">Maksimal 30 detik</p>
 
         <div className="flex flex-col items-center justify-center p-6 bg-neutral-950 rounded-xl space-y-3">
