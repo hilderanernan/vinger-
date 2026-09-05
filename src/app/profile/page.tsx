@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import PostCard from '@/components/feed/PostCard'
 import SignOutButton from '@/components/auth/SignOutButton'
+import EditProfileModal from '@/components/profile/EditProfileModal'
 
 export const revalidate = 0
 
@@ -45,15 +46,31 @@ export default async function ProfilePage() {
 
       <div className="w-full max-w-md space-y-6">
         {/* Profile Card */}
-        <div className="flex items-center space-x-4 bg-neutral-900 border border-neutral-800 p-4 rounded-xl">
-          <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center font-bold text-xl text-neutral-300">
-            {profile?.username?.[0]?.toUpperCase() || 'U'}
+        <div className="bg-neutral-900 border border-neutral-800 p-4 rounded-xl space-y-3">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center font-bold text-xl text-neutral-300 overflow-hidden">
+              {profile?.avatar_url ? (
+                <img
+                  src={profile.avatar_url}
+                  alt={profile?.username || 'Avatar'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                profile?.username?.[0]?.toUpperCase() || 'U'
+              )}
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg font-bold">{profile?.display_name || 'Vinger User'}</h2>
+              <p className="text-sm text-neutral-400">@{profile?.username}</p>
+              <p className="text-xs text-neutral-500 mt-1">{userPosts?.length || 0} Voice Posts</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold">{profile?.display_name || 'Vinger User'}</h2>
-            <p className="text-sm text-neutral-400">@{profile?.username}</p>
-            <p className="text-xs text-neutral-500 mt-1">{userPosts?.length || 0} Voice Posts</p>
-          </div>
+
+          {profile?.bio && (
+            <p className="text-sm text-neutral-300">{profile.bio}</p>
+          )}
+
+          <EditProfileModal profile={profile} />
         </div>
 
         {/* User Posts Section */}
