@@ -91,11 +91,18 @@ export default function EditProfileModal({ profile }: { profile: Profile }) {
       {isOpen && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-end sm:items-center justify-center">
           <div className="bg-neutral-900 border border-neutral-800 rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[85vh] flex flex-col">
-            {/* Header - sticky */}
-            <div className="flex justify-between items-center p-5 pb-3 border-b border-neutral-800 shrink-0">
-              <h3 className="font-bold text-lg">Edit Profile</h3>
+            {/* Header - X, judul, dan tombol Simpan sejajar */}
+            <div className="flex justify-between items-center p-4 border-b border-neutral-800 shrink-0">
               <button onClick={() => setIsOpen(false)}>
                 <X className="w-5 h-5 text-neutral-400" />
+              </button>
+              <h3 className="font-bold text-base">Edit Profile</h3>
+              <button
+                onClick={handleSave}
+                disabled={loading}
+                className="text-sm font-semibold text-black bg-white px-3 py-1.5 rounded-full disabled:opacity-50"
+              >
+                {loading ? 'Menyimpan...' : 'Simpan'}
               </button>
             </div>
 
@@ -150,17 +157,6 @@ export default function EditProfileModal({ profile }: { profile: Profile }) {
               </div>
 
               {error && <p className="text-xs text-red-500">{error}</p>}
-            </div>
-
-            {/* Footer - sticky, tombol selalu kelihatan */}
-            <div className="p-5 pt-3 border-t border-neutral-800 shrink-0">
-              <button
-                onClick={handleSave}
-                disabled={loading}
-                className="w-full bg-white text-black font-semibold py-2.5 rounded-lg text-sm disabled:opacity-50"
-              >
-                {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
-              </button>
             </div>
           </div>
         </div>
