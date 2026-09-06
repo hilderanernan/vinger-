@@ -1,58 +1,47 @@
 import { createClient } from '@/lib/supabase/server'
-import PostCard from '@/components/feed/PostCard'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
-export const revalidate = 0
+export const metadata = {
+  title: 'Vinger — Media Sosial Berbasis Suara',
+  description: 'Vinger adalah media sosial berbasis suara. Rekam, bagikan, dan dengarkan cerita lewat suara asli, bukan sekadar ketikan.',
+}
 
-export default async function HomePage() {
+export default async function LandingPage() {
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
-  }
 
-  const { data: posts, error } = await supabase
-    .from('posts')
-    .select(`
-      id,
-      audio_url,
-      duration,
-      caption,
-      created_at,
-      likes_count,
-      comments_count,
-      profiles (
-        username,
-        display_name,
-        avatar_url
-      )
-    `)
-    .order('created_at', { ascending: false })
-
-  if (error) {
-    console.error('Error fetching posts:', error)
+  if (user) {
+    redirect('/feed')
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 pb-36 bg-black text-white">
-      <header className="w-full max-w-md py-4 mb-4 border-b border-neutral-800 flex justify-between items-center sticky top-0 bg-black/90 backdrop-blur-md z-40">
-        <h1 className="text-xl font-bold tracking-tight text-white">Vinger</h1>
-        <span className="text-xs font-mono text-neutral-400">Audio Feed</span>
-      </header>
-
-      <div className="w-full max-w-md space-y-4">
-        {posts && posts.length > 0 ? (
-          posts.map((post: any) => (
-            <PostCard key={post.id} post={post} currentUserId={user.id} />
-          ))
-        ) : (
-          <div className="text-center py-12 space-y-2">
-            <p className="text-neutral-400">Belum ada voice post.</p>
-            <p className="text-xs text-neutral-600">Jadilah yang pertama merekam suara di Vinger!</p>
-          </div>
-        )}
+    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-black text-white text-center space-y-8">
+      <div className="space-y-3">
+        <h1 className="text-4xl font-bold tracking-tight">Vinger</h1>
+        <p className="text-neutral-400 text-sm max-w-xs mx-auto">
+          Media sosial berbasis suara. Rekam, bagikan, dan dengarkan cerita nyata lewat suara asli — bukan sekadar ketikan.
+        </p>
       </div>
+
+      <div className="space-y-3 text-left max-w-xs mx-auto text-sm text-neutral-300">
+        <p>🎙️ Posting suara, bukan teks</p>
+        <p>💬 Balas komentar dengan suara juga</p>
+        <p>❤️ Like dan temukan suara-suara baru</p>
+      </div>
+
+      <div className="w-full max-w-xs space-y-3">
+        <Link
+          href="/login"
+          className="block w-full py-3 bg-white text-black font-semibold rounded-lg hover:bg-neutral-200 transition text-sm"
+        >
+          Masuk / Daftar
+        </Link>
+      </div>
+
+      <p className="text-xs text-neutral-600">
+        Vinger — dengar dan didengar.
+      </p>
     </main>
   )
 }

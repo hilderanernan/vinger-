@@ -15,19 +15,18 @@ export default function LoginPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  // Auto direct jika user sudah memiliki session aktif
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
-        router.replace('/')
+        router.replace('/feed')
       }
     }
     checkUser()
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        router.replace('/')
+        router.replace('/feed')
       }
     })
 
@@ -47,13 +46,13 @@ export default function LoginPage() {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: `${window.location.origin}/feed`,
         },
       })
       if (error) {
         setError(error.message)
       } else if (data.session) {
-        router.replace('/')
+        router.replace('/feed')
       } else {
         setMessage('Cek email kamu untuk konfirmasi pendaftaran!')
       }
@@ -65,7 +64,7 @@ export default function LoginPage() {
       if (error) {
         setError(error.message)
       } else {
-        router.replace('/')
+        router.replace('/feed')
       }
     }
     setLoading(false)

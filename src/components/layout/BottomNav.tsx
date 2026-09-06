@@ -7,12 +7,12 @@ import { Home, Mic, User } from 'lucide-react'
 export default function BottomNav() {
   const pathname = usePathname()
 
-  // Hide nav on login page
-  if (pathname === '/login') return null
+  // Hide nav on login page dan landing page
+  if (pathname === '/login' || pathname === '/') return null
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-md border-t border-neutral-800 py-3 px-6 flex justify-around items-center z-50">
-      <Link href="/" className={`flex flex-col items-center space-y-1 ${pathname === '/' ? 'text-white' : 'text-neutral-500'}`}>
+      <Link href="/feed" className={`flex flex-col items-center space-y-1 ${pathname === '/feed' ? 'text-white' : 'text-neutral-500'}`}>
         <Home className="w-6 h-6" />
         <span className="text-[10px]">Feed</span>
       </Link>
